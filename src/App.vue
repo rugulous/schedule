@@ -91,11 +91,6 @@ main{
     display: flex;
     align-items: center;
     justify-content: center;
-    grid-column: 2;
-    grid-row: 4;
-    border: solid 2px #000;
-    background-color: rgba(255, 0, 0, 0.8);
-    color: #FFF;
     min-height: var(--row-size);
     position: relative;
 }
@@ -154,7 +149,11 @@ main{
                 </div>
             </template>
 
-            <div class="event" style="top: 15px">Hello I am event</div>
+            <template v-for="(day, dayIndex) in events">
+            <div class="event" :class="`event-${event.type}`" v-for="event in day" :style="`height: ${event.duration * 2}px; grid-area: ${1 + (event.start * 4)} / ${dayIndex + 2}`">
+                {{ event.title }}
+            </div>
+            </template>
         </div>
         <div id="now"></div>
         </main>
@@ -169,6 +168,43 @@ const data = ref<string[]>([]);
 const now = ref("0px");
 const dates = ref<Date[]>([]);
 const scrollbar = ref(getScrollBarWidth());
+
+const events = ref([[{
+    title: "Work",
+    location: "Circle Leasing",
+    type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
+    start: 9,
+    duration: 480
+}], [{
+    title: "Work",
+    location: "Circle Leasing",
+    type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
+    start: 9,
+    duration: 480
+}], [{
+    title: "Work",
+    location: "Circle Leasing",
+    type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
+    start: 9,
+    duration: 480
+}], [], [{
+    title: "Revolution",
+    type: "f3d817bf-7dac-4981-b5c2-19c6fc334263",
+    location: "HQ",
+    start: 13,
+    duration: 120
+}]]);
+
+const eventTypes = {
+    "f3d817bf-7dac-4981-b5c2-19c6fc334263": {
+        background: "rgba(0, 255, 0, 0.6)",
+        colour: "#000"
+    }, 
+    "d19d7643-40d4-4219-89a2-0a3a28cb6023": {
+        background: "rgba(255, 0, 0, 0.6)",
+        colour: "#FFF"
+    }
+}
 
 const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
@@ -206,7 +242,7 @@ for (let i = 0; i < 24; i++) {
 
 async function updateTicker(){
     const newDate = new Date();
-    now.value = 50 + (((newDate.getHours() * 60) + newDate.getMinutes()) * 2) + "px";
+    now.value = (((newDate.getHours() * 60) + newDate.getMinutes()) * 2) + "px";
 
     if(newDate.toLocaleDateString().split("T")[0] != date.toLocaleDateString().split("T")[0]){
         setDates();
@@ -242,6 +278,18 @@ function inActiveHours(column: number, i: number){
     return hours.startTime > i / 4 || hours.endTime <= i / 4
 }
 
+const sheet = new CSSStyleSheet();
+document.adoptedStyleSheets = [sheet];
+
+function setDynamicStyles(){
+    sheet.replaceSync("");
+    Object.keys(eventTypes).forEach(id => {
+        const type = eventTypes[id as keyof typeof eventTypes];
+        sheet.insertRule(`.event-${id} { color: ${type.colour}; background-color: ${type.background} }`);
+    })
+}
+
+setDynamicStyles();
 setDates();
 updateTicker();
 
