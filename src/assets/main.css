@@ -1,0 +1,87 @@
+@import './core.css';
+@import './utils.css';
+
+html, body {
+  height: 100%;
+  min-height: 100%;
+}
+
+body{
+  overflow: hidden;
+}
+
+input:not([type=checkbox]), textarea {
+  display: block;
+  width: 100%;
+  padding: .5rem .75rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  margin: 0.1rem 0;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+input:focus-visible {
+  outline: var(--primary-colour) 3px solid;
+}
+
+input[type=checkbox] {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  margin-bottom: .25rem;
+  appearance: none;
+  background-color: #FFF;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+input[type=checkbox]:checked {
+  background-color: var(--primary-colour);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+label {
+  margin-left: .75rem;
+  margin-bottom: .3rem;
+  display: block;
+  text-align: start;
+}
+
+button {
+  padding: .5rem 1rem;
+  font-size: 1.25rem;
+  border-radius: 10px;
+  border-color: rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+button:active {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 0 0);
+  position: relative;
+  top: -1px;
+}
+
+button.primary {
+  background-color: var(--primary-colour);
+  color: var(--primary-text-colour);
+}
+
+.error{
+  background: #C00;
+  color: #FFF;
+}
+
+.error:not(button){
+  padding: 1rem .5rem;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.success{
+  background-color: var(--success-colour);
+  color: var(--success-text-colour);
+}
+
+#app{
+  height: 100%;
+}
