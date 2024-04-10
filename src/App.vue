@@ -2,14 +2,30 @@
 section{
     --time-size: 50px;
     --row-size: 30px;
+    overflow: hidden;
+    max-height: 100vh;
 }
 
 .schedule {
+    --num-cols: 1;
+    --scrollbar-width: 0px;
+    --column-size: calc((100% - var(--time-size) - var(--scrollbar-width)) / var(--num-cols));
     display: grid;
-    grid-template-columns: var(--time-size) auto;
-    grid-template-rows: 50px;
+    grid-template-columns: var(--time-size) repeat(5, var(--column-size));
     grid-auto-rows: var(--row-size);
     text-align: center;
+    scrollbar-gutter: stable;
+}
+
+header.schedule{
+    --scrollbar-width: v-bind(scrollbar);
+    grid-template-rows: 50px;
+}
+
+main{
+    height: calc(100vh - 50px);
+    overflow-y: scroll;
+    position: relative;
 }
 
 .schedule > div:not(.event):not(:nth-child(6n + 1)):not(:nth-child(6n + 2)){
@@ -17,6 +33,10 @@ section{
 }
 
 @media (min-width: 768px){
+.schedule{
+    --num-cols: 3;
+}
+
 .schedule > div:not(.event):nth-child(6n + 3),
 .schedule > div:not(.event):nth-child(6n + 4) {
     display: block !important;
@@ -24,6 +44,10 @@ section{
 }
 
 @media (min-width: 1200px){
+    .schedule{
+        --num-cols: 5;
+    }
+
     .schedule > div:not(.event){
         display: block !important;
     }
@@ -31,17 +55,18 @@ section{
 
 .schedule>div:not(.event) {
     border: solid 1px #000;
-    border-top: none;
+    border-bottom: none;
     border-left: none;
     position: relative;
 }
+
 .schedule > div:not(.event):nth-child(12n+7),
 .schedule > div:not(.event):nth-child(12n+8),
 .schedule > div:not(.event):nth-child(12n+9),
 .schedule > div:not(.event):nth-child(12n+10),
 .schedule > div:not(.event):nth-child(12n+11),
 .schedule > div:not(.event):nth-child(12n+12) {
-    border-bottom: dashed 1px #CCC;
+    border-top: dashed 1px #CCC;
 }
 
 .schedule > div:not(.event):nth-child(12n+13),
@@ -50,7 +75,7 @@ section{
 .schedule > div:not(.event):nth-child(12n+16),
 .schedule > div:not(.event):nth-child(12n+17),
 .schedule > div:not(.event):nth-child(12n+18) {
-    border-bottom: solid 1px #CCC;
+    border-top: solid 1px #CCC;
 }
 
 .schedule > div:not(.event):nth-child(24n + 1),
@@ -59,9 +84,8 @@ section{
 .schedule > div:not(.event):nth-child(24n + 4),
 .schedule > div:not(.event):nth-child(24n + 5),
 .schedule > div:not(.event):nth-child(24n + 6) {
-    border-bottom: solid 1px #000;
+    border-top: solid 1px #000;
 }
-
 
 .event {
     display: flex;
@@ -106,7 +130,7 @@ section{
 
 .disabled{
     background-color: #666;
-    border-bottom: none !important;
+    border-top: none !important;
 }
 </style>
 
@@ -114,23 +138,26 @@ section{
     <RouterView></RouterView>
 
     <section>
-        <div class="schedule">
+        <header class="schedule">
             <div></div>
-            <div v-for="date in dates">
+            <div v-for="(date, index) in dates" :style="`grid-column: ${index + 2}`">
               <strong class="d-block">{{ date.toLocaleDateString() }}</strong>
               <i>{{ weekdays[date.getDay()] }}</i>
             </div>
-
+        </header>
+        <main>
+        <div class="schedule">
             <template v-for="(time, i) in data" v-if="dates.length > 0">
-                <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'" v-html="i % 4 == 0 ? time : ''"></div>
+                <div class="time" :style="'grid-area: ' + (i + 1) + '/ 1;'" v-html="i % 4 == 0 ? time : ''"></div>
 
-                <div v-for="(_, index) in dates" :class="{disabled: inActiveHours(index, i)}" :style="`grid-area: ${i + 2} / ${index + 2};`">
+                <div v-for="(_, index) in dates" :class="{disabled: inActiveHours(index, i)}" :style="`grid-area: ${i + 1} / ${index + 2};`">
                 </div>
             </template>
 
             <div class="event" style="top: 15px">Hello I am event</div>
         </div>
         <div id="now"></div>
+        </main>
 
     </section>
 </template>
@@ -141,6 +168,7 @@ import { ref, onMounted } from 'vue';
 const data = ref<string[]>([]);
 const now = ref("0px");
 const dates = ref<Date[]>([]);
+const scrollbar = ref(getScrollBarWidth());
 
 const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
@@ -183,6 +211,15 @@ async function updateTicker(){
     if(newDate.toLocaleDateString().split("T")[0] != date.toLocaleDateString().split("T")[0]){
         setDates();
     }
+}
+
+function getScrollBarWidth() {
+  let el = document.createElement("div");
+  el.style.cssText = "overflow:scroll; visibility:hidden; position:absolute;";
+  document.body.appendChild(el);
+  let width = el.offsetWidth - el.clientWidth;
+  el.remove();
+  return width + "px";
 }
 
 function setDates(){
