@@ -24,7 +24,7 @@ section{
 }
 
 @media (min-width: 1200px){
-    .schedule > div{
+    .schedule > div:not(.event){
         display: block !important;
     }
 }
@@ -42,19 +42,29 @@ section{
 .schedule > div:not(.event):nth-child(12n+10),
 .schedule > div:not(.event):nth-child(12n+11),
 .schedule > div:not(.event):nth-child(12n+12) {
-    border-bottom: dashed 1px #222;
+    border-bottom: dashed 1px #CCC;
+}
+
+.schedule > div:not(.event):nth-child(12n+13),
+.schedule > div:not(.event):nth-child(12n+14),
+.schedule > div:not(.event):nth-child(12n+15),
+.schedule > div:not(.event):nth-child(12n+16),
+.schedule > div:not(.event):nth-child(12n+17),
+.schedule > div:not(.event):nth-child(12n+18) {
+    border-bottom: solid 1px #CCC;
 }
 
 .event {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     grid-column: 2;
     grid-row: 4;
-    border: solid 1px #f00;
-    background-color: rgba(255, 0, 0, 0.6);
+    border: solid 2px #000;
+    background-color: rgba(255, 0, 0, 0.8);
+    color: #FFF;
     min-height: var(--row-size);
-}
-
-.event.clash{
-    width: 50%;
+    position: relative;
 }
 
 #now{
@@ -105,7 +115,7 @@ section{
             </div>
 
             <template v-for="(time, i) in data">
-                <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'" v-html="i % 2 == 0 ? time : ''"></div>
+                <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'" v-html="i % 4 == 0 ? time : ''"></div>
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 2;'"></div>
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 3;'"></div>
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 4;'"></div>
@@ -113,7 +123,7 @@ section{
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 6;'"></div>
             </template>
 
-            <div class="event">Hello I am event</div>
+            <div class="event" style="top: 15px">Hello I am event</div>
         </div>
         <div id="now"></div>
 
@@ -124,29 +134,31 @@ section{
 import { ref, onMounted } from 'vue';
 
 const data = ref<string[]>([]);
+let ticker: HTMLElement | null = null;
+const now = ref("0px");
 
 for (let i = 0; i < 24; i++) {
     data.value.push(i.toString().padStart(2, "0") + ":00");
+    data.value.push(i.toString().padStart(2, "0") + ":15");
     data.value.push(i.toString().padStart(2, "0") + ":30");
+    data.value.push(i.toString().padStart(2, "0") + ":45");
 }
 
-const date = new Date();
-const now = ref("0px");
+async function updateTicker(){
+    const date = new Date();
+    now.value = 50 + (((date.getHours() * 60) + date.getMinutes()) * 2) + "px";
+}
 
-const timeout = (delayMs: number) => new Promise((res, _rej) => setTimeout(res, delayMs));
-
-(async () => {
-    while(true) {
-        now.value = 50 + (date.getHours() * 60) + date.getMinutes() + "px";
-        await timeout(60000);
-    }
-})();
+updateTicker();
 
 onMounted(() => {
-    const ticker = document.getElementById("now");
+    ticker = document.getElementById("now");
+
     ticker?.scrollIntoView({
         block: "center",
         behavior: "smooth"
     });
+
+    setInterval(updateTicker, 60000);
 });
 </script>
