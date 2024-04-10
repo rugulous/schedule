@@ -103,6 +103,11 @@ section{
 .d-block{
     display: block;
 }
+
+.disabled{
+    background-color: #666;
+    border-bottom: none !important;
+}
 </style>
 
 <template>
@@ -116,13 +121,11 @@ section{
               <i>{{ weekdays[date.getDay()] }}</i>
             </div>
 
-            <template v-for="(time, i) in data">
+            <template v-for="(time, i) in data" v-if="dates.length > 0">
                 <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'" v-html="i % 4 == 0 ? time : ''"></div>
-                <div :style="'grid-area: ' + (i + 2) + '/ 2;'"></div>
-                <div :style="'grid-area: ' + (i + 2) + '/ 3;'"></div>
-                <div :style="'grid-area: ' + (i + 2) + '/ 4;'"></div>
-                <div :style="'grid-area: ' + (i + 2) + '/ 5;'"></div>
-                <div :style="'grid-area: ' + (i + 2) + '/ 6;'"></div>
+
+                <div v-for="(_, index) in dates" :class="{disabled: inActiveHours(index, i)}" :style="`grid-area: ${i + 2} / ${index + 2};`">
+                </div>
             </template>
 
             <div class="event" style="top: 15px">Hello I am event</div>
@@ -143,6 +146,28 @@ const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","S
 
 let ticker: HTMLElement | null = null;
 let date = new Date();
+const activeHours = [{ //Sunday
+    startTime: 10,
+    endTime: 22
+}, { //Monday
+    startTime: 8,
+    endTime: 22
+}, { //Tuesday
+    startTime: 8,
+    endTime: 22
+}, { //Wednesday
+    startTime: 8,
+    endTime: 22
+}, { //Thursday
+    startTime: 8,
+    endTime: 22
+}, { //Friday
+    startTime: 8,
+    endTime: 22
+}, { //Saturday
+    startTime: 10,
+    endTime: 22
+},]
 
 for (let i = 0; i < 24; i++) {
     data.value.push(i.toString().padStart(2, "0") + ":00");
@@ -171,6 +196,13 @@ function setDates(){
     }
 
     dates.value = _dates;
+}
+
+function inActiveHours(column: number, i: number){
+    const d = dates.value[column].getDay();
+    const hours = activeHours[d];
+
+    return hours.startTime > i / 4 || hours.endTime <= i / 4
 }
 
 setDates();
