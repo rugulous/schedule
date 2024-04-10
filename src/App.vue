@@ -1,14 +1,25 @@
 <style scoped>
 .schedule {
     display: grid;
-    grid-template-columns: 50px calc(100% - 50px);
+    grid-template-columns: 50px auto;
     grid-auto-rows: 2rem;
     text-align: center;
 }
 
-@media screen and (min-width: 1080px){
-    .schedule{
-        grid-template-columns: 50px auto;
+.schedule > div:not(.event):not(:nth-child(6n + 1)):not(:nth-child(6n + 2)){
+    display: none;
+}
+
+@media (min-width: 768px){
+.schedule > div:not(.event):nth-child(6n + 3),
+.schedule > div:not(.event):nth-child(6n + 4) {
+    display: block !important;
+}
+}
+
+@media (min-width: 1200px){
+    .schedule > div{
+        display: block !important;
     }
 }
 
@@ -38,10 +49,6 @@
 .event.clash{
     width: 50%;
 }
-
-/* .schedule:nth-of-type(1) {
-    border-top: solid 1px #000;
-} */
 </style>
 
 <template>
@@ -50,19 +57,19 @@
     <section>
         <div class="schedule">
             <div></div>
-            <div class="rowspace">
+            <div>
                 Monday
             </div>
-            <div class="rowspace">
+            <div>
                 Tuesday
             </div>
-            <div class="rowspace">
+            <div>
                 Wednesday
             </div>
-            <div class="rowspace">
+            <div>
                 Thursday
             </div>
-            <div class="rowspace">
+            <div>
                 Friday
             </div>
 
