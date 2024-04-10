@@ -18,7 +18,7 @@ section{
 }
 
 header.schedule{
-    --scrollbar-width: v-bind(scrollbar);
+    --scrollbar-width: 0px;
     grid-template-rows: 50px;
     border-bottom: solid 1px #000;
 }
@@ -47,6 +47,10 @@ main{
 @media (min-width: 1200px){
     .schedule{
         --num-cols: 5;
+    }
+
+    header.schedule{
+        --scrollbar-width: v-bind(scrollbar);
     }
 
     .schedule > div:not(.event){
@@ -169,14 +173,15 @@ main{
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const data = ref<string[]>([]);
 const now = ref("0px");
 const dates = ref<Date[]>([]);
 const scrollbar = ref(getScrollBarWidth());
+const numCols = ref(0);
 
-const events = ref([[{
+const rawEvents = ref([[{
     title: "Work",
     location: "Circle Leasing",
     type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
@@ -219,6 +224,8 @@ const events = ref([[{
     start: 17,
     duration: 105
 }], []]);
+
+const events = computed(() => rawEvents.value.slice(0, numCols.value));
 
 const eventTypes = {
     "f3d817bf-7dac-4981-b5c2-19c6fc334263": {
@@ -322,11 +329,21 @@ function setDynamicStyles(){
     })
 }
 
+function getCols(){
+    const schedule = document.querySelector(".schedule");
+    if(!schedule){
+        return 1;
+    }
+
+    return parseInt(getComputedStyle(schedule).getPropertyValue("--num-cols"));
+}
+
 setDynamicStyles();
 setDates();
 updateTicker();
 
 onMounted(() => {
+    numCols.value = getCols();
     ticker = document.getElementById("now");
 
     ticker?.scrollIntoView({
@@ -336,4 +353,6 @@ onMounted(() => {
 
     setInterval(updateTicker, 60000);
 });
+
+window.addEventListener("resize", () => numCols.value = getCols());
 </script>
