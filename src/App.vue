@@ -20,6 +20,7 @@ section{
 header.schedule{
     --scrollbar-width: v-bind(scrollbar);
     grid-template-rows: 50px;
+    border-bottom: solid 1px #000;
 }
 
 main{
@@ -89,10 +90,15 @@ main{
 
 .event {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: var(--row-size);
     position: relative;
+}
+
+.title{
+    font-size: 1.5rem;
 }
 
 #now{
@@ -151,7 +157,8 @@ main{
 
             <template v-for="(day, dayIndex) in events">
             <div class="event" :class="`event-${event.type}`" v-for="event in day" :style="`height: ${event.duration * 2}px; grid-area: ${1 + (event.start * 4)} / ${dayIndex + 2}`">
-                {{ event.title }}
+                <span class="title d-block">{{ event.title }}</span>
+                <span class="d-block" v-if="event.duration >= 30">{{ event.location }}</span>
             </div>
             </template>
         </div>
@@ -181,27 +188,53 @@ const events = ref([[{
     type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
     start: 9,
     duration: 480
+}, {
+    title: "Travel to Bradford",
+    location: "Bradford",
+    type: "d5686f00-5711-472a-9dc8-5e9d46597696",
+    start: 17,
+    duration: 90
 }], [{
     title: "Work",
     location: "Circle Leasing",
     type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
     start: 9,
     duration: 480
-}], [], [{
+}, {
     title: "Revolution",
     type: "f3d817bf-7dac-4981-b5c2-19c6fc334263",
     location: "HQ",
-    start: 13,
+    start: 19.5,
     duration: 120
-}]]);
+}, {
+    title: "Travel to Home",
+    location: "Home",
+    type: "d5686f00-5711-472a-9dc8-5e9d46597696",
+    start: 22,
+    duration: 60
+}], [{
+    title: "Birthday Meal",
+    type: "e2459424-91d5-47cb-875a-d3e33c096ab5",
+    location: "Fazenda",
+    start: 17,
+    duration: 105
+}], []]);
 
 const eventTypes = {
     "f3d817bf-7dac-4981-b5c2-19c6fc334263": {
-        background: "rgba(0, 255, 0, 0.6)",
-        colour: "#000"
+        background: "rgba(131, 158, 0, 0.8)",
+        colour: "#FFF"
     }, 
     "d19d7643-40d4-4219-89a2-0a3a28cb6023": {
-        background: "rgba(255, 0, 0, 0.6)",
+        background: "rgba(0, 0, 0, 0.8)",
+        colour: "#FFF"
+    },
+    "e2459424-91d5-47cb-875a-d3e33c096ab5": {
+        background: "rgba(142, 246, 228, 0.8)",
+        colour: "#000"
+    },
+    "d5686f00-5711-472a-9dc8-5e9d46597696": {
+        background: "repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);",
         colour: "#FFF"
     }
 }
@@ -285,7 +318,7 @@ function setDynamicStyles(){
     sheet.replaceSync("");
     Object.keys(eventTypes).forEach(id => {
         const type = eventTypes[id as keyof typeof eventTypes];
-        sheet.insertRule(`.event-${id} { color: ${type.colour}; background-color: ${type.background} }`);
+        sheet.insertRule(`.event-${id} { color: ${type.colour}; background: ${type.background} }`);
     })
 }
 
