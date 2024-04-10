@@ -1,8 +1,14 @@
 <style scoped>
+section{
+    --time-size: 50px;
+    --row-size: 30px;
+}
+
 .schedule {
     display: grid;
-    grid-template-columns: 50px auto;
-    grid-auto-rows: 2rem;
+    grid-template-columns: var(--time-size) auto;
+    grid-template-rows: 50px;
+    grid-auto-rows: var(--row-size);
     text-align: center;
 }
 
@@ -41,13 +47,38 @@
 
 .event {
     grid-column: 2;
-    grid-row: 4 / span 2;
+    grid-row: 4;
     border: solid 1px #f00;
     background-color: rgba(255, 0, 0, 0.6);
+    min-height: var(--row-size);
 }
 
 .event.clash{
     width: 50%;
+}
+
+#now{
+    z-index: 1;
+    border-top: solid 2px #F00;
+    position: absolute;
+    left: var(--time-size);
+    right: 0;
+    top: v-bind(now);
+}
+
+#now::before{
+    content: "";
+    background: #F00;
+    position: absolute;
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    margin-top: -6.5px;
+    left: -7px;
+}
+
+.time {
+    font-weight: bold;
 }
 </style>
 
@@ -57,24 +88,24 @@
     <section>
         <div class="schedule">
             <div></div>
-            <div>
+            <div class="time">
                 Monday
             </div>
-            <div>
+            <div class="time">
                 Tuesday
             </div>
-            <div>
+            <div class="time">
                 Wednesday
             </div>
-            <div>
+            <div class="time">
                 Thursday
             </div>
-            <div>
+            <div class="time">
                 Friday
             </div>
 
             <template v-for="(time, i) in data">
-                <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'">{{ time }}</div>
+                <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'" v-html="i % 2 == 0 ? time : ''"></div>
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 2;'"></div>
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 3;'"></div>
                 <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 4;'"></div>
@@ -84,11 +115,13 @@
 
             <div class="event">Hello I am event</div>
         </div>
+        <div id="now"></div>
+
     </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const data = ref<string[]>([]);
 
@@ -96,4 +129,24 @@ for (let i = 0; i < 24; i++) {
     data.value.push(i.toString().padStart(2, "0") + ":00");
     data.value.push(i.toString().padStart(2, "0") + ":30");
 }
+
+const date = new Date();
+const now = ref("0px");
+
+const timeout = (delayMs: number) => new Promise((res, _rej) => setTimeout(res, delayMs));
+
+(async () => {
+    while(true) {
+        now.value = 50 + (date.getHours() * 60) + date.getMinutes() + "px";
+        await timeout(60000);
+    }
+})();
+
+onMounted(() => {
+    const ticker = document.getElementById("now");
+    ticker?.scrollIntoView({
+        block: "center",
+        behavior: "smooth"
+    });
+});
 </script>
