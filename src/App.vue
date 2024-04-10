@@ -1,7 +1,7 @@
 <style scoped>
-section{
+section {
     --time-size: 50px;
-    --row-size: 30px;
+    --row-size: 60px;
     overflow: hidden;
     max-height: 100dvh;
 }
@@ -17,79 +17,52 @@ section{
     scrollbar-gutter: stable;
 }
 
-header.schedule{
+header.schedule {
     --scrollbar-width: 0px;
     grid-template-rows: 50px;
     border-bottom: solid 1px #000;
 }
 
-main{
+main {
     height: calc(100dvh - 50px);
     overflow-y: scroll;
     position: relative;
 }
 
-.schedule > div:not(.event):not(:nth-child(6n + 1)):not(:nth-child(6n + 2)){
+.schedule>div:not(.event):not(:nth-child(6n + 1)):not(:nth-child(6n + 2)) {
     display: none;
 }
 
-@media (min-width: 768px){
-.schedule{
-    --num-cols: 3;
-}
-
-.schedule > div:not(.event):nth-child(6n + 3),
-.schedule > div:not(.event):nth-child(6n + 4) {
-    display: block !important;
-}
-}
-
-@media (min-width: 1200px){
-    .schedule{
-        --num-cols: 5;
+@media (min-width: 768px) {
+    .schedule {
+        --num-cols: 3;
     }
 
-    header.schedule{
-        --scrollbar-width: v-bind(scrollbar);
-    }
-
-    .schedule > div:not(.event){
+    .schedule>div:not(.event):nth-child(6n + 3),
+    .schedule>div:not(.event):nth-child(6n + 4) {
         display: block !important;
     }
 }
 
-.schedule>div:not(.event) {
+@media (min-width: 1200px) {
+    .schedule {
+        --num-cols: 5;
+    }
+
+    header.schedule {
+        --scrollbar-width: v-bind(scrollbar);
+    }
+
+    .schedule>div:not(.event):not(.time) {
+        display: block !important;
+    }
+}
+
+.schedule>div:not(.event):not(.time) {
     border: solid 1px #000;
-    border-bottom: none;
-    border-left: none;
+    border-top: none;
+    border-right: none;
     position: relative;
-}
-
-.schedule > div:not(.event):nth-child(12n+7),
-.schedule > div:not(.event):nth-child(12n+8),
-.schedule > div:not(.event):nth-child(12n+9),
-.schedule > div:not(.event):nth-child(12n+10),
-.schedule > div:not(.event):nth-child(12n+11),
-.schedule > div:not(.event):nth-child(12n+12) {
-    border-top: dashed 1px #CCC;
-}
-
-.schedule > div:not(.event):nth-child(12n+13),
-.schedule > div:not(.event):nth-child(12n+14),
-.schedule > div:not(.event):nth-child(12n+15),
-.schedule > div:not(.event):nth-child(12n+16),
-.schedule > div:not(.event):nth-child(12n+17),
-.schedule > div:not(.event):nth-child(12n+18) {
-    border-top: solid 1px #CCC;
-}
-
-.schedule > div:not(.event):nth-child(24n + 1),
-.schedule > div:not(.event):nth-child(24n + 2),
-.schedule > div:not(.event):nth-child(24n + 3),
-.schedule > div:not(.event):nth-child(24n + 4),
-.schedule > div:not(.event):nth-child(24n + 5),
-.schedule > div:not(.event):nth-child(24n + 6) {
-    border-top: solid 1px #000;
 }
 
 .event {
@@ -101,11 +74,11 @@ main{
     position: relative;
 }
 
-.title{
+.title {
     font-size: 1.5rem;
 }
 
-#now{
+#now {
     z-index: 1;
     border-top: solid 2px #F00;
     position: absolute;
@@ -114,7 +87,7 @@ main{
     top: v-bind(now);
 }
 
-#now::before{
+#now::before {
     content: "";
     background: #F00;
     position: absolute;
@@ -127,15 +100,13 @@ main{
 
 .time {
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.d-block{
+.d-block {
     display: block;
-}
-
-.disabled{
-    background-color: #666;
-    border-top: none !important;
 }
 </style>
 
@@ -144,36 +115,36 @@ main{
 
     <section>
         <header class="schedule">
-            <div></div>
+            <div class="time"></div>
             <div v-for="(date, index) in dates" :style="`grid-column: ${index + 2}`">
-              <strong class="d-block">{{ date.toLocaleDateString() }}</strong>
-              <i>{{ weekdays[date.getDay()] }}</i>
+                <strong class="d-block">{{ date.toLocaleDateString() }}</strong>
+                <i>{{ weekdays[date.getDay()] }}</i>
             </div>
         </header>
         <main>
-        <div class="schedule">
-            <template v-for="(time, i) in data" v-if="dates.length > 0">
-                <div class="time" :style="'grid-area: ' + (i + 1) + '/ 1;'" v-html="i % 4 == 0 ? time : ''"></div>
+            <div class="schedule">
+                <template v-for="(time, i) in data" v-if="dates.length > 0">
+                    <div class="time" :style="'grid-area: ' + (i + 1) + '/ 1;'">{{ time }}</div>
 
-                <div v-for="(_, index) in dates" :class="{disabled: inActiveHours(index, i)}" :style="`grid-area: ${i + 1} / ${index + 2};`">
-                </div>
-            </template>
+                    <div v-for="(_, index) in dates" :style="`grid-area: ${i + 1} / ${index + 2};`">
+                    </div>
+                </template>
 
-            <template v-for="(day, dayIndex) in events">
-            <div class="event" :class="`event-${event.type}`" v-for="event in day" :style="`height: ${event.duration * 2}px; grid-area: ${1 + (event.start * 4)} / ${dayIndex + 2}`">
-                <span class="title d-block">{{ event.title }}</span>
-                <span class="d-block" v-if="event.duration >= 30">{{ event.location }}</span>
+                <template v-for="(day, dayIndex) in events">
+                    <div class="event" :class="`event-${event.type}`" v-for="event in day" :style="`height: ${event.duration}px; grid-area: ${1 + Math.floor(event.start)} / ${dayIndex + 2}`">
+                        <span class="title d-block">{{ event.title }}</span>
+                        <span class="d-block" v-if="event.duration >= 30">{{ event.location }}</span>
+                    </div>
+                </template>
             </div>
-            </template>
-        </div>
-        <div id="now"></div>
+            <div id="now"></div>
         </main>
 
     </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 
 const data = ref<string[]>([]);
 const now = ref("0px");
@@ -181,7 +152,7 @@ const dates = ref<Date[]>([]);
 const scrollbar = ref(getScrollBarWidth());
 const numCols = ref(0);
 
-const rawEvents = ref([[{
+const rawEvents = reactive([[{
     title: "Work",
     location: "Circle Leasing",
     type: "d19d7643-40d4-4219-89a2-0a3a28cb6023",
@@ -225,13 +196,13 @@ const rawEvents = ref([[{
     duration: 105
 }], []]);
 
-const events = computed(() => rawEvents.value.slice(0, numCols.value));
+const events = computed(() => rawEvents.slice(0, numCols.value));
 
 const eventTypes = {
     "f3d817bf-7dac-4981-b5c2-19c6fc334263": {
         background: "rgba(131, 158, 0, 0.8)",
         colour: "#FFF"
-    }, 
+    },
     "d19d7643-40d4-4219-89a2-0a3a28cb6023": {
         background: "rgba(0, 0, 0, 0.8)",
         colour: "#FFF"
@@ -243,10 +214,14 @@ const eventTypes = {
     "d5686f00-5711-472a-9dc8-5e9d46597696": {
         background: "repeating-linear-gradient(45deg, #606dbc, #606dbc 10px, #465298 10px, #465298 20px);",
         colour: "#FFF"
+    },
+    "e77e1c5f-4a72-483a-922f-1d40fe819ea1": {
+        background: "rgba(102, 102, 102, 0.8)",
+        colour: "#FFF"
     }
 }
 
-const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 let ticker: HTMLElement | null = null;
 let date = new Date();
@@ -269,59 +244,68 @@ const activeHours = [{ //Sunday
     startTime: 8,
     endTime: 22
 }, { //Saturday
-    startTime: 10,
+    startTime: 9.5,
     endTime: 22
 },]
 
 for (let i = 0; i < 24; i++) {
     data.value.push(i.toString().padStart(2, "0") + ":00");
-    data.value.push(i.toString().padStart(2, "0") + ":15");
-    data.value.push(i.toString().padStart(2, "0") + ":30");
-    data.value.push(i.toString().padStart(2, "0") + ":45");
 }
 
-async function updateTicker(){
+async function updateTicker() {
     const newDate = new Date();
-    now.value = (((newDate.getHours() * 60) + newDate.getMinutes()) * 2) + "px";
+    now.value = ((newDate.getHours() * 60) + newDate.getMinutes()) + "px";
 
-    if(newDate.toLocaleDateString().split("T")[0] != date.toLocaleDateString().split("T")[0]){
+    if (newDate.toLocaleDateString().split("T")[0] != date.toLocaleDateString().split("T")[0]) {
         setDates();
     }
 }
 
 function getScrollBarWidth() {
-  let el = document.createElement("div");
-  el.style.cssText = "overflow:scroll; visibility:hidden; position:absolute;";
-  document.body.appendChild(el);
-  let width = el.offsetWidth - el.clientWidth;
-  el.remove();
-  return width + "px";
+    let el = document.createElement("div");
+    el.style.cssText = "overflow:scroll; visibility:hidden; position:absolute;";
+    document.body.appendChild(el);
+    let width = el.offsetWidth - el.clientWidth;
+    el.remove();
+    return width + "px";
 }
 
-function setDates(){
+function setDates() {
     date = new Date();
     const _dates = [date];
 
-    for(let i = 1; i < 5; i++){
+    for (let i = 1; i < 5; i++) {
         const nextDate = new Date();
         nextDate.setDate(nextDate.getDate() + i);
         _dates.push(nextDate)
     }
 
     dates.value = _dates;
-}
 
-function inActiveHours(column: number, i: number){
-    const d = dates.value[column].getDay();
-    const hours = activeHours[d];
+    dates.value.forEach((day, index) => {
+        const hours = activeHours[day.getDay()];
+        rawEvents[index].unshift({
+            title: "Inactive Hours",
+            location: "",
+            type: "e77e1c5f-4a72-483a-922f-1d40fe819ea1",
+            start: 0,
+            duration: hours.startTime * 60
+        });
 
-    return hours.startTime > i / 4 || hours.endTime <= i / 4
+        rawEvents[index].unshift({
+            title: "Inactive Hours",
+            location: "",
+            type: "e77e1c5f-4a72-483a-922f-1d40fe819ea1",
+            start: hours.endTime,
+            duration: (24 - hours.endTime) * 60
+        });
+    });
 }
 
 const sheet = new CSSStyleSheet();
 document.adoptedStyleSheets = [sheet];
 
-function setDynamicStyles(){
+function setDynamicStyles() {
     sheet.replaceSync("");
     Object.keys(eventTypes).forEach(id => {
         const type = eventTypes[id as keyof typeof eventTypes];
@@ -329,9 +313,9 @@ function setDynamicStyles(){
     })
 }
 
-function getCols(){
+function getCols() {
     const schedule = document.querySelector(".schedule");
-    if(!schedule){
+    if (!schedule) {
         return 1;
     }
 
