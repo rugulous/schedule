@@ -3,7 +3,7 @@ section{
     --time-size: 50px;
     --row-size: 30px;
     overflow: hidden;
-    max-height: 100vh;
+    max-height: 100dvh;
 }
 
 .schedule {
@@ -23,7 +23,7 @@ header.schedule{
 }
 
 main{
-    height: calc(100vh - 50px);
+    height: calc(100dvh - 50px);
     overflow-y: scroll;
     position: relative;
 }
