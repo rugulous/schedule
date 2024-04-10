@@ -35,7 +35,6 @@ section{
     border-left: none;
     position: relative;
 }
-
 .schedule > div:not(.event):nth-child(12n+7),
 .schedule > div:not(.event):nth-child(12n+8),
 .schedule > div:not(.event):nth-child(12n+9),
@@ -53,6 +52,16 @@ section{
 .schedule > div:not(.event):nth-child(12n+18) {
     border-bottom: solid 1px #CCC;
 }
+
+.schedule > div:not(.event):nth-child(24n + 1),
+.schedule > div:not(.event):nth-child(24n + 2),
+.schedule > div:not(.event):nth-child(24n + 3),
+.schedule > div:not(.event):nth-child(24n + 4),
+.schedule > div:not(.event):nth-child(24n + 5),
+.schedule > div:not(.event):nth-child(24n + 6) {
+    border-bottom: solid 1px #000;
+}
+
 
 .event {
     display: flex;
@@ -90,6 +99,10 @@ section{
 .time {
     font-weight: bold;
 }
+
+.d-block{
+    display: block;
+}
 </style>
 
 <template>
@@ -98,29 +111,18 @@ section{
     <section>
         <div class="schedule">
             <div></div>
-            <div class="time">
-                Monday
-            </div>
-            <div class="time">
-                Tuesday
-            </div>
-            <div class="time">
-                Wednesday
-            </div>
-            <div class="time">
-                Thursday
-            </div>
-            <div class="time">
-                Friday
+            <div v-for="date in dates">
+              <strong class="d-block">{{ date.toLocaleDateString() }}</strong>
+              <i>{{ weekdays[date.getDay()] }}</i>
             </div>
 
             <template v-for="(time, i) in data">
                 <div class="time" :style="'grid-area: ' + (i + 2) + '/ 1;'" v-html="i % 4 == 0 ? time : ''"></div>
-                <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 2;'"></div>
-                <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 3;'"></div>
-                <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 4;'"></div>
-                <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 5;'"></div>
-                <div class="rowspace" :style="'grid-area: ' + (i + 2) + '/ 6;'"></div>
+                <div :style="'grid-area: ' + (i + 2) + '/ 2;'"></div>
+                <div :style="'grid-area: ' + (i + 2) + '/ 3;'"></div>
+                <div :style="'grid-area: ' + (i + 2) + '/ 4;'"></div>
+                <div :style="'grid-area: ' + (i + 2) + '/ 5;'"></div>
+                <div :style="'grid-area: ' + (i + 2) + '/ 6;'"></div>
             </template>
 
             <div class="event" style="top: 15px">Hello I am event</div>
@@ -134,8 +136,13 @@ section{
 import { ref, onMounted } from 'vue';
 
 const data = ref<string[]>([]);
-let ticker: HTMLElement | null = null;
 const now = ref("0px");
+const dates = ref<Date[]>([]);
+
+const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+let ticker: HTMLElement | null = null;
+let date = new Date();
 
 for (let i = 0; i < 24; i++) {
     data.value.push(i.toString().padStart(2, "0") + ":00");
@@ -145,10 +152,28 @@ for (let i = 0; i < 24; i++) {
 }
 
 async function updateTicker(){
-    const date = new Date();
-    now.value = 50 + (((date.getHours() * 60) + date.getMinutes()) * 2) + "px";
+    const newDate = new Date();
+    now.value = 50 + (((newDate.getHours() * 60) + newDate.getMinutes()) * 2) + "px";
+
+    if(newDate.toLocaleDateString().split("T")[0] != date.toLocaleDateString().split("T")[0]){
+        setDates();
+    }
 }
 
+function setDates(){
+    date = new Date();
+    const _dates = [date];
+
+    for(let i = 1; i < 5; i++){
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + i);
+        _dates.push(nextDate)
+    }
+
+    dates.value = _dates;
+}
+
+setDates();
 updateTicker();
 
 onMounted(() => {
