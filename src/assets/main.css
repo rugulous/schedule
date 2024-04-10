@@ -6,10 +6,6 @@ html, body {
   min-height: 100%;
 }
 
-body{
-  overflow: hidden;
-}
-
 input:not([type=checkbox]), textarea {
   display: block;
   width: 100%;

@@ -1,25 +1,42 @@
 <style scoped>
 .schedule {
     display: grid;
-    flex-direction: column;
-    height: 100vh;
-    grid-template-columns: 100px auto;
+    grid-template-columns: 50px calc(100% - 50px);
+    grid-auto-rows: 2rem;
+    text-align: center;
+}
+
+@media screen and (min-width: 1080px){
+    .schedule{
+        grid-template-columns: 50px auto;
+    }
 }
 
 .schedule>div:not(.event) {
-    min-height: max-content;
     border: solid 1px #000;
     border-top: none;
     border-left: none;
     position: relative;
 }
 
+.schedule > div:not(.event):nth-child(12n+7),
+.schedule > div:not(.event):nth-child(12n+8),
+.schedule > div:not(.event):nth-child(12n+9),
+.schedule > div:not(.event):nth-child(12n+10),
+.schedule > div:not(.event):nth-child(12n+11),
+.schedule > div:not(.event):nth-child(12n+12) {
+    border-bottom: dashed 1px #222;
+}
+
 .event {
     grid-column: 2;
     grid-row: 4 / span 2;
     border: solid 1px #f00;
-    width: 50%;
     background-color: rgba(255, 0, 0, 0.6);
+}
+
+.event.clash{
+    width: 50%;
 }
 
 /* .schedule:nth-of-type(1) {
@@ -32,22 +49,20 @@
 
     <section>
         <div class="schedule">
-            <div>
-
-            </div>
-            <div>
+            <div></div>
+            <div class="rowspace">
                 Monday
             </div>
-            <div>
+            <div class="rowspace">
                 Tuesday
             </div>
-            <div>
+            <div class="rowspace">
                 Wednesday
             </div>
-            <div>
+            <div class="rowspace">
                 Thursday
             </div>
-            <div>
+            <div class="rowspace">
                 Friday
             </div>
 
@@ -68,9 +83,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const data = ref<number[]>([]);
+const data = ref<string[]>([]);
 
-for (let i = 0; i < 10; i++) {
-    data.value.push(i);
+for (let i = 0; i < 24; i++) {
+    data.value.push(i.toString().padStart(2, "0") + ":00");
+    data.value.push(i.toString().padStart(2, "0") + ":30");
 }
 </script>
