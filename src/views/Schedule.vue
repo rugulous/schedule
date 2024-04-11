@@ -53,10 +53,7 @@ main {
 }
 
 .event {
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     min-height: var(--row-size);
     position: relative;
 }
@@ -85,15 +82,14 @@ main {
     left: -7px;
 }
 
-.time {
-    font-weight: bold;
+.time, .event {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.d-block {
-    display: block;
+.time {
+    font-weight: bold;
 }
 </style>
 
@@ -102,7 +98,7 @@ main {
         <header class="schedule">
             <div class="time"></div>
             <div v-for="index in numCols" :style="`grid-column: ${index + 1}`">
-                <strong class="d-block">{{ dates[index - 1].toLocaleDateString() }}</strong>
+                <p class="m0"><strong>{{ dates[index - 1].toLocaleDateString() }}</strong></p>
                 <i>{{ weekdays[dates[index - 1].getDay()] }}</i>
             </div>
         </header>
@@ -117,8 +113,8 @@ main {
 
                 <template v-for="(day, dayIndex) in events">
                     <div class="event" :class="`event-${event.type}`" v-for="event in day" :style="`height: ${event.duration}px; grid-area: ${1 + Math.floor(event.start)} / ${dayIndex + 2}`">
-                        <span class="title d-block">{{ event.title }}</span>
-                        <span class="d-block" v-if="event.duration >= 30">{{ event.location }}</span>
+                        <p class="title m0">{{ event.title }}</p>
+                        <p class="m0" v-if="event.duration >= 30">{{ event.location }}</p>
                     </div>
                 </template>
             </div>
